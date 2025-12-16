@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en" data-app="edge-stream-sentinel">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Edge Stream Sentinel — Low-Data Streaming Orchestrator (Single File)</title>
+  <meta name="description" content="Open-source scaffold for low-data streaming via remote/edge orchestration. Single-file, offline-first, extensible with AI copy-paste modules." />
+  <meta name="theme-color" content="#0b1220" />
+  <meta name="color-scheme" content="dark light" />
+  <style>
+    :root{
+      /* Design tokens */
+      --bg: #0b1220; --card:#0f172a; --ink:#e6edf3; --muted:#9fb0c3; --accent:#34d399; --warn:#f59e0b; --danger:#ef4444; --ring:#22d3ee;
+      --radius:14px; --gap:1rem; --shadow:0 10px 30px rgba(0,0,0,.35); --maxw:1100px;
+      --focus-ring: 0 0 0 3px color-mix(in oklab, var(--ring), transparent 25%);
+    }
+    @media (prefers-color-scheme: light){
+      :root{ --bg:#f7fbff; --card:#ffffff; --ink:#0b1220; --muted:#5a6b7e; }
+    }
+    * { box-sizing:border-box }
+    html,body { height:100% }
+    body{
+      margin:0; font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background:var(--bg); color:var(--ink);
+    }
+    a { color: var(--ring); }
+    .wrap{ max-width:var(--maxw); margin:0 auto; padding:clamp(12px,1.8vw,20px); }
+    header.site{
+      position:sticky; top:0; z-index:10; backdrop-filter:saturate(1.2) blur(6px);
+      background:color-mix(in oklab, var(--bg), transparent 25%); border-bottom:1px solid color-mix(in oklab, var(--ink), transparent 90%);
+    }
+    header .bar{ display:flex; align-items:center; gap:var(--gap); justify-content:space-between }
+    header .brand{ display:flex; align-items:center; gap:.7rem; }
+    header .logo{
+      inline-size:40px; block-size:40px; border-radius:50%; background: radial-gradient(60% 60% at 30% 30%, var(--ring), transparent 40%), radial-gradient(60% 60% at 70% 70%, var(--accent), transparent 45%), var(--card);
+      box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--ink), transparent 80%), 0 4px 20px rgba(0,0,0,.25);
+    }
+    .kbd { font:600 12px/1 system-ui; border:1px solid color-mix(in oklab, var(--ink), transparent 85%); padding:.25rem .4rem; border-radius:.5rem; background:color-mix(in oklab, var(--bg), white 6%) }
+    main{ display:grid; gap:var(--gap); padding-block:1rem; }
+    .grid{ display:grid; gap:var(--gap); }
+    @container (min-width: 700px){
+      .grid-2{ grid-template-columns:1fr 1fr }
+    }
+    .card{
+      background:var(--card); border:1px solid color-mix(in oklab, var(--ink), transparent 88%);
+      border-radius:var(--radius); padding:1rem; box-shadow:var(--shadow);
+    }
+    .toolbar{ display:flex; flex-wrap:wrap; gap:.6rem; align-items:center }
+    button, .btn{
+      appearance:none; border:none; padding:.65rem .9rem; border-radius:12px; color:#061019; background:var(--ring); cursor:pointer; font-weight:600;
+    }
+    button.secondary{ background:color-mix(in oklab, var(--ring), #fff 75%); color:#0b1220 }
+    button.warn{ background:var(--warn); color:#0b1220 }
+    button:focus-visible{ outline: none; box-shadow: var(--focus-ring) }
+    fieldset{ border:1px solid color-mix(in oklab, var(--ink), transparent 85%); border-radius:12px; padding: .8rem; }
+    legend{ padding:0 .4rem; color:var(--muted); font-size:.95rem }
+    .muted{ color:var(--muted) }
+    .mono{ font-family: ui-monospace, Menlo, Consolas, monospace; font-size:.95rem }
+    .hl{ color: var(--accent); font-weight:700 }
+    .notice{ border-left:4px solid var(--accent); padding:.5rem .75rem; background:color-mix(in oklab, var(--card), white 3%); border-radius:8px }
+    .hidden{ display:none !important }
+    footer{ color:var(--muted); font-size:.9rem; padding-bottom:2rem }
+    /* Reduced motion guardrails */
+    @media (prefers-reduced-motion: reduce){
+      *{ animation:none !important; transition:none !important; scroll-behavior:auto !important }
+    }
+    /* Container queries */
+    main{ container-type:inline-size; }
+  </style>
+</head>
+<body>
+  <header class="site" role="banner">
+    <div class="wrap bar">
+      <div class="brand" aria-label="App brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <strong>Edge Stream Sentinel</strong><br>
+          <span class="muted">Low-Data Streaming Orchestrator (open-source scaffold)</span>
+        </div>
+      </div>
+      <nav aria-label="Top">
+        <div class="toolbar" role="toolbar" aria-label="Global actions">
+          <button id="btn-run-audit" class="secondary" title="Probe edge / policy support (Shift+A)"><span class="kbd">Shift</span>+<span class="kbd">A</span> Audit</button>
+          <button id="btn-estimate" class="" title="Estimate data for a session (E)">Estimate</button>
+          <button id="btn-save" class="secondary" title="Save plan locally (Ctrl+S)">Save</button>
+          <button id="btn-help" class="warn" title="Help & Shortcuts (?)">Help</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card" aria-labelledby="intro-h">
+      <h1 id="intro-h">Purpose</h1>
+      <p>This single-file app is a <strong>starter kit</strong> for routing interactive streams (games/desktop) through remote or edge nodes to <em>minimize last-mile data</em>. It’s designed to be extended via clearly marked <span class="hl">AI copy-paste modules</span> inside this same file.</p>
+      <p class="notice">Reality check: today, most cloud/remote streaming still consumes your local data. The mission here is to <em>experiment</em>: detect potential zero-rating/edge conditions, choose ultra-low-bitrate modes, and scaffold future <span class="mono">edge-probe</span> and <span class="mono">zero-rating</span> integrations.</p>
+    </section>
+
+    <section class="grid grid-2">
+      <article class="card" aria-labelledby="plan-h">
+        <h2 id="plan-h">Session Plan</h2>
+        <form id="plan-form">
+          <fieldset>
+            <legend>Session parameters</legend>
+            <label>Mode:
+              <select name="mode" id="mode">
+                <option value="rdp">RDP / Remote Desktop (H.264)</option>
+                <option value="webrtc">WebRTC (AV1/H.264)</option>
+                <option value="cloud-gaming">Cloud Gaming (service)</option>
+                <option value="local-lan">Local LAN relay</option>
+              </select>
+            </label>
+            <br />
+            <label>Target bitrate (Mbps): <input type="number" id="bitrate" min="0.2" step="0.1" value="6.0" /></label>
+            <br />
+            <label>Resolution:
+              <select id="res">
+                <option value="1280x720@60">720p @60</option>
+                <option value="1920x1080@60">1080p @60</option>
+                <option value="1280x720@30">720p @30</option>
+                <option value="854x480@30">480p @30 (low data)</option>
+              </select>
+            </label>
+            <br />
+            <label>Duration (minutes): <input type="number" id="mins" min="5" step="5" value="60" /></label>
+            <br />
+            <label><input type="checkbox" id="enable-ldm" checked /> Low-Data Measures (input delta, keyframe stretch, foveated)</label>
+          </fieldset>
+        </form>
+        <div id="estimate-out" class="notice mono" aria-live="polite">Press <span class="kbd">E</span> to estimate data.</div>
+      </article>
+
+      <article class="card" aria-labelledby="audit-h">
+        <h2 id="audit-h">Edge/Policy Audit</h2>
+        <p class="muted">Run a quick, non-invasive probe for:<br> (1) <strong>Edge proximity</strong> (latency signatures), (2) <strong>Potential zero-rating</strong> hints (non-authoritative), (3) <strong>Codec support</strong> (AV1/H.264), (4) <strong>Offline readiness</strong>.</p>
+        <div class="toolbar">
+          <button id="btn-probe" class="">Run Probe</button>
+          <button id="btn-cache" class="secondary">Cache This App Offline</button>
+          <button id="btn-clear-cache" class="secondary">Clear Cache</button>
+        </div>
+        <pre id="probe-log" class="mono" style="white-space:pre-wrap;max-height:200px;overflow:auto" aria-live="polite"></pre>
+      </article>
+    </section>
+
+    <section class="card" aria-labelledby="modules-h">
+      <h2 id="modules-h">Pluggable Modules (AI Expansion Points)</h2>
+      <p class="muted">Drop future code into the templates below. Keep everything inside this file for IPFS/Arweave portability.</p>
+
+      <!-- MODULE: Zero-Rating Registry (placeholder) -->
+      <template id="tpl-zero-rating-registry">
+        <!-- TODO: AI: Populate known carrier/IP range heuristics, signed statements, and opt-in user reports.
+             Schema: see #policy-registry-json below. Provide functions:
+             - isZeroRated({ host, ip, carrier }): boolean|unknown
+             - explainZeroRatingMatch(): string
+        -->
+      </template>
+
+      <!-- MODULE: Edge Probe (placeholder) -->
+      <template id="tpl-edge-probe">
+        <!-- TODO: AI: Implement multi-endpoint RTT sampling (STUN/Anycast), downlink/uplink estimates,
+             jitter profiling, AV1 support detection via createEncoder / MediaCapabilities.
+             Export function runEdgeProbe() that appends findings to #probe-log.
+        -->
+      </template>
+
+      <!-- MODULE: Stream Orchestrator (placeholder) -->
+      <template id="tpl-stream-orchestrator">
+        <!-- TODO: AI: Implement orchestrator:
+             decide({mode, bitrate, res, caps, policy}) => plan
+             attach connectors: RDP-over-WebRTC (future), Native RDP bridge (native helper), Cloud-Gaming adapters.
+             Provide start(), stop(), and dataTick() to track live usage and adapt bitrate.
+        -->
+      </template>
+
+      <!-- MODULE: Compression Lab (placeholder) -->
+      <template id="tpl-compression-lab">
+        <!-- TODO: AI: Provide knobs for GOP length, target quantizer, ROI/foveated regions, input-delta transmission.
+             For WebRTC: use insertable streams to downscale chroma or reduce peripheral detail.
+        -->
+      </template>
+
+      <!-- MODULE: Policy/UX Cookbook (placeholder) -->
+      <template id="tpl-cookbook">
+        <!-- TODO: AI: Provide step-by-step flows:
+             - "If edge-probe < 12 ms & zero-rated==likely → prefer AV1 540p@30"
+             - "Mobile data cap near limit → dynamic floor 480p@30, keyframes 4s, input-delta only"
+        -->
+      </template>
+    </section>
+
+    <section class="card" aria-labelledby="data-h">
+      <h2 id="data-h">Local Data & Export</h2>
+      <div class="toolbar">
+        <button id="btn-export">Export Config JSON</button>
+        <button id="btn-import" class="secondary">Import Config JSON</button>
+      </div>
+      <pre id="cfg-out" class="mono muted" aria-live="polite"></pre>
+    </section>
+
+    <section class="card" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility & Shortcuts</h2>
+      <ul>
+        <li><span class="kbd">?</span> Help dialog • <span class="kbd">Shift</span>+<span class="kbd">A</span> Audit • <span class="kbd">E</span> Estimate • <span class="kbd">Ctrl</span>+<span class="kbd">S</span> Save Plan</li>
+        <li>Contrast AA+, logical headings, focus ring, reduced motion honored.</li>
+        <li>Works without JS: content remains readable, export/import non-JS fallback appears as instructions.</li>
+      </ul>
+    </section>
+
+    <dialog id="help" aria-labelledby="help-h">
+      <h2 id="help-h">Help & Shortcuts</h2>
+      <p>Use this as your living lab. Copy a module template, paste code, iterate. Everything stays in one file.</p>
+      <button id="help-close" class="btn">Close</button>
+    </dialog>
+  </main>
+
+  <footer class="wrap">
+    <p>Made to seed a future where streaming doesn’t punish the last mile. <span class="muted">MIT license by default — replace as needed.</span></p>
+  </footer>
+
+  <!-- Seed data schemas (JSON blocks AI can read/extend) -->
+  <script type="application/json" id="policy-registry-json">
+  {
+    "version": 1,
+    "carriers": [
+      { "name": "ExampleCarrier", "country": "CA", "notes": "Placeholder", "zeroRatedIPs": ["203.0.113.0/24"], "services": ["webrtc:av1"], "evidence": [] }
+    ]
+  }
+  </script>
+
+  <script type="application/json" id="app-config-json">
+  {
+    "defaults": { "mode":"rdp", "bitrateMbps":6.0, "res":"1280x720@60", "mins":60, "lowData": true },
+    "featureFlags": { "useAV1IfSupported": true, "foveatedEXPERIMENTAL": false },
+    "notes": "Edit via UI or export/import"
+  }
+  </script>
+
+  <!-- App logic (vanilla, minimal) -->
+  <script>
+  (function(){
+    const $ = sel => document.querySelector(sel);
+    const log = (el,msg) => { el.textContent += (msg + "\\n"); el.scrollTop = el.scrollHeight; };
+
+    // --- ESTIMATOR (simple, explains assumptions) ---
+    function estimateData({bitrateMbps, mins, lowData}){
+      // bitrate Mbps → MB/min ≈ (Mbps * 60) / 8
+      const mbPerMin = (bitrateMbps * 60) / 8;
+      const factor = lowData ? 0.72 : 1.0; // heuristic savings from LDM toggles
+      const totalMB = mbPerMin * mins * factor;
+      return {
+        totalMB: Math.round(totalMB),
+        totalGB: +(totalMB / 1024).toFixed(2),
+        notes: lowData ? "Low-Data measures enabled (heuristic 28% cut)" : "Standard stream"
+      };
+    }
+
+    // --- PROBE (lightweight stubs; safe/no external calls) ---
+    async function edgeProbe(){
+      const out = $("#probe-log");
+      out.textContent = "";
+      const t0 = performance.now();
+      // Local latency proxy (JS overhead): not a real network RTT, placeholder for future STUN test.
+      const synthetic = (Math.sin(Date.now()/1000)+1)*5 + 10; // 5..15ms toy number
+      log(out, "Edge proximity (synthetic): ~" + synthetic.toFixed(1) + " ms (placeholder)");
+      // Codec support:
+      const av1 = MediaCapabilities && navigator.mediaCapabilities ?
+        "unknown (implement check later)" : "unknown";
+      log(out, "AV1 support: " + av1);
+      // Offline readiness:
+      const sw = (navigator.serviceWorker && navigator.serviceWorker.controller) ? "controlled" : "no SW";
+      log(out, "Service Worker: " + sw);
+      log(out, "Zero-rating hints: TODO (use policy-registry-json + IP heuristics)");
+      const t1 = performance.now();
+      log(out, "Probe time: " + (t1 - t0).toFixed(1) + " ms");
+    }
+
+    // --- CONFIG PERSISTENCE (localStorage + export/import) ---
+    function readForm(){
+      return {
+        mode: $("#mode").value,
+        bitrate: parseFloat($("#bitrate").value),
+        res: $("#res").value,
+        mins: parseInt($("#mins").value,10),
+        lowData: $("#enable-ldm").checked
+      };
+    }
+    function savePlan(){
+      const plan = readForm();
+      localStorage.setItem("edge-stream-plan", JSON.stringify(plan));
+      announce("Plan saved locally.");
+      return plan;
+    }
+    function loadPlan(){
+      const raw = localStorage.getItem("edge-stream-plan");
+      if(!raw) return;
+      try{
+        const p = JSON.parse(raw);
+        $("#mode").value = p.mode ?? "rdp";
+        $("#bitrate").value = p.bitrate ?? 6.0;
+        $("#res").value = p.res ?? "1280x720@60";
+        $("#mins").value = p.mins ?? 60;
+        $("#enable-ldm").checked = !!p.lowData;
+      }catch{}
+    }
+    function exportCfg(){
+      const cfg = {
+        plan: readForm(),
+        policyRegistry: JSON.parse($("#policy-registry-json").textContent),
+        appConfig: JSON.parse($("#app-config-json").textContent)
+      };
+      const blob = new Blob([JSON.stringify(cfg,null,2)], {type:"application/json"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "edge-stream-config.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      announce("Exported configuration JSON.");
+      $("#cfg-out").textContent = JSON.stringify(cfg, null, 2);
+    }
+    function importCfg(){
+      const inp = document.createElement("input");
+      inp.type = "file"; inp.accept = "application/json";
+      inp.onchange = () => {
+        const f = inp.files?.[0]; if(!f) return;
+        const fr = new FileReader();
+        fr.onload = () => {
+          try{
+            const cfg = JSON.parse(fr.result);
+            if(cfg.plan){
+              $("#mode").value = cfg.plan.mode ?? "rdp";
+              $("#bitrate").value = cfg.plan.bitrate ?? 6.0;
+              $("#res").value = cfg.plan.res ?? "1280x720@60";
+              $("#mins").value = cfg.plan.mins ?? 60;
+              $("#enable-ldm").checked = !!cfg.plan.lowData;
+              savePlan();
+            }
+            if(cfg.policyRegistry){
+              $("#policy-registry-json").textContent = JSON.stringify(cfg.policyRegistry,null,2);
+            }
+            if(cfg.appConfig){
+              $("#app-config-json").textContent = JSON.stringify(cfg.appConfig,null,2);
+            }
+            announce("Imported configuration JSON.");
+            $("#cfg-out").textContent = JSON.stringify(cfg, null, 2);
+          }catch(e){ announce("Import failed: " + e.message, true); }
+        };
+        fr.readAsText(f);
+      };
+      inp.click();
+    }
+
+    // --- SERVICE WORKER (embedded via Blob) ---
+    const SW_CODE = `
+      const CACHE = "edge-stream-sentinel-v1";
+      const ASSETS = self.registration ? [ self.registration.scope ] : [ "./" ];
+      self.addEventListener("install", e=>{
+        e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));
+      });
+      self.addEventListener("activate", e=>{ e.waitUntil(self.clients.claim()); });
+      self.addEventListener("fetch", e=>{
+        const req = e.request;
+        // Network-first for same-origin HTML, fallback to cache for offline.
+        if(req.mode==="navigate"){
+          e.respondWith(fetch(req).then(r=>{
+            const copy = r.clone();
+            caches.open(CACHE).then(c=>c.put(req, copy));
+            return r;
+          }).catch(()=>caches.match(req).then(r=> r || caches.match("./"))));
+        }
+      });
+    `;
+    async function registerSW(){
+      if(!("serviceWorker" in navigator)) { announce("Service Worker not supported."); return; }
+      const blob = new Blob([SW_CODE], {type:"text/javascript"});
+      const url = URL.createObjectURL(blob);
+      try{
+        await navigator.serviceWorker.register(url, { scope: "./" });
+        announce("App cached for offline use.");
+        URL.revokeObjectURL(url);
+      }catch(e){ announce("SW registration failed: " + e.message, true); }
+    }
+    async function clearCache(){
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+      announce("Caches cleared.");
+    }
+
+    // --- UI wiring ---
+    function announce(msg, isErr=false){
+      const out = $("#probe-log");
+      log(out, (isErr?"[!] ":"[✓] ") + msg);
+    }
+
+    // Buttons
+    $("#btn-estimate").addEventListener("click", ()=>{
+      const plan = readForm();
+      const est = estimateData({ bitrateMbps: plan.bitrate, mins: plan.mins, lowData: plan.lowData });
+      $("#estimate-out").textContent = `≈ ${est.totalMB} MB (${est.totalGB} GB) for this session — ${est.notes}`;
+    });
+    $("#btn-probe").addEventListener("click", edgeProbe);
+    $("#btn-cache").addEventListener("click", registerSW);
+    $("#btn-clear-cache").addEventListener("click", clearCache);
+    $("#btn-export").addEventListener("click", exportCfg);
+    $("#btn-import").addEventListener("click", importCfg);
+    $("#btn-save").addEventListener("click", savePlan);
+    $("#btn-run-audit").addEventListener("click", ()=>{ savePlan(); edgeProbe(); });
+
+    // Help dialog
+    const help = $("#help");
+    $("#btn-help").addEventListener("click", ()=> help.showModal());
+    $("#help-close").addEventListener("click", ()=> help.close());
+
+    // Shortcuts
+    window.addEventListener("keydown", (e)=>{
+      if(e.key==="?" || (e.shiftKey && e.key==="/")){ e.preventDefault(); help.showModal(); }
+      if(e.key==="E" || e.key==="e"){ e.preventDefault(); $("#btn-estimate").click(); }
+      if(e.key==="A" && e.shiftKey){ e.preventDefault(); $("#btn-run-audit").click(); }
+      if(e.key==="s" && (e.ctrlKey || e.metaKey)){ e.preventDefault(); $("#btn-save").click(); }
+    });
+
+    // On load
+    loadPlan();
+    // Progressive enhancement note for no-JS users is implicit: content is still readable.
+  })();
+  </script>
+</body>
+</html>
